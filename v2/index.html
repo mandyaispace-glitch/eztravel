@@ -9,19 +9,59 @@
     html, body {
       margin: 0;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #f4fbfa;
+      min-height: 100%;
+      background: #eef8f6;
     }
     iframe {
       width: 100%;
-      height: 100%;
+      min-height: 100vh;
       border: 0;
       display: block;
+      background: #eef8f6;
     }
   </style>
 </head>
 <body>
-  <iframe src="../eztravel-poc-workshop-demo.html?brand=generic" title="團體旅遊評價系統 POC Demo"></iframe>
+  <iframe id="demoFrame" src="../eztravel-poc-workshop-demo.html?brand=generic" title="團體旅遊評價系統 POC Demo"></iframe>
+  <script>
+    const frame = document.getElementById("demoFrame");
+
+    function cleanV2() {
+      const doc = frame.contentDocument;
+      if (!doc) return;
+
+      doc.title = "團體旅遊評價系統 POC Demo";
+
+      const style = doc.createElement("style");
+      style.textContent = `
+        .caption, .intro, .eyebrow { display: none !important; }
+        .top { justify-content: center !important; margin-bottom: 22px !important; }
+        .top > div:first-child { display: none !important; }
+        .switcher { margin: 0 auto !important; }
+        .stage { place-items: center !important; }
+        .phone { margin-left: auto !important; margin-right: auto !important; }
+      `;
+      doc.head.appendChild(style);
+
+      const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        node.nodeValue = node.nodeValue
+          .replaceAll("易遊網團體旅遊評價系統 POC Demo", "團體旅遊評價系統 POC Demo")
+          .replaceAll("易遊網團體旅遊", "團體旅遊")
+          .replaceAll("易遊網", "")
+          .replaceAll("eMoney", "M幣")
+          .replaceAll("EMoney", "M幣")
+          .replaceAll("E-money", "M幣");
+      });
+    }
+
+    frame.addEventListener("load", () => {
+      cleanV2();
+      setTimeout(cleanV2, 300);
+      setTimeout(cleanV2, 1000);
+    });
+  </script>
 </body>
 </html>
