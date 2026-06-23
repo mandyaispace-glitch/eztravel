@@ -1,0 +1,2526 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ezTravel 易遊網 - 會員與評鑑模擬器</title>
+  <!-- Security & Privacy: Prevent search engine indexing -->
+  <meta name="robots" content="noindex, nofollow">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    /* CSS Variables for Premium Design System */
+    :root {
+      --primary-color: #00c07f;       /* ezTravel Green */
+      --primary-dark: #009d67;
+      --primary-light: #e6f9f2;       /* Light green for rating background */
+      --accent-color: #ff9500;        /* ezTravel Orange */
+      --accent-light: #fff5e6;
+      --bg-color: #f5f6f8;            /* Light gray background */
+      --card-bg: #ffffff;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-tertiary: #999999;
+      --border-color: #eeeeee;
+      --danger-color: #ff3b30;
+      
+      --font-main: 'Noto Sans TC', sans-serif;
+      --font-number: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: linear-gradient(135deg, #102030 0%, #1a1a2e 100%);
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Device Shell for Desktop */
+    .device-container {
+      position: relative;
+      width: 390px; /* Standard iPhone 13/14 width */
+      height: 844px; /* Standard iPhone 13/14 height */
+      background: #222;
+      border: 10px solid #222;
+      border-radius: 40px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 
+                  0 0 0 2px #444;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Adapt to full screen on small mobile devices */
+    @media (max-width: 480px) {
+      .device-container {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    .device-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Status Bar Mock */
+    .status-bar {
+      height: 44px;
+      background-color: var(--card-bg);
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-number);
+      font-size: 14px;
+      font-weight: 600;
+      color: #000;
+      z-index: 100;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .status-net {
+      font-size: 11px;
+      margin-right: 2px;
+    }
+
+    .status-battery-percent {
+      font-size: 12px;
+      margin-left: 2px;
+    }
+
+    /* DEMO: Floating Navigation Control Panel */
+    #demo {
+      position: absolute;
+      top: 50px; /* Placed right below the status bar */
+      left: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 14px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    #demo button {
+      flex: 1;
+      background: var(--primary-light);
+      border: 1px solid rgba(0, 192, 127, 0.2);
+      color: var(--primary-dark);
+      padding: 6px 4px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    #demo button:hover, #demo button:active {
+      background: var(--primary-color);
+      color: #ffffff;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 10px rgba(0, 192, 127, 0.2);
+    }
+
+    /* Screen Wrapper and Navigation */
+    .screen-wrapper {
+      position: relative;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+      transform: translateY(10px);
+      padding-top: 54px; /* Space for the floating #demo bar */
+      padding-bottom: 70px; /* Space for bottom nav */
+    }
+
+    /* Adjust screen scroll padding when bottom nav is not present (e.g. review form) */
+    #screen-review-form {
+      padding-bottom: 80px; /* Space for submit bar */
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      z-index: 10;
+    }
+
+    /* Common Header Styles */
+    .screen-header {
+      height: 50px;
+      background-color: var(--card-bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 15px;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .back-btn {
+      width: 24px;
+      height: 24px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .back-btn:active {
+      transform: scale(0.9);
+    }
+
+    .header-right-placeholder {
+      width: 24px;
+    }
+
+    .text-btn {
+      background: none;
+      border: none;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: var(--font-main);
+      cursor: pointer;
+    }
+
+    .text-btn.green {
+      color: var(--primary-color);
+    }
+
+    .text-btn.gray {
+      color: var(--text-secondary);
+    }
+
+    /* Tabs Bar */
+    .tabs-bar {
+      display: flex;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 13px 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s ease;
+    }
+
+    .tab-item.active {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 30%;
+      right: 30%;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 2px;
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+      background-color: #fffbeb;
+      border-bottom: 1px solid #fde8c4;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      color: #d97706;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .alert-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+
+    .alert-text {
+      flex-grow: 1;
+    }
+
+    .alert-arrow {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* SCREEN 1: PROFILE PAGE STYLE */
+    .profile-header {
+      background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+      padding: 20px 15px 30px;
+      color: #fff;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .action-btn {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+
+    .action-btn:hover {
+      opacity: 1;
+    }
+
+    .notification-badge {
+      position: relative;
+    }
+
+    .notification-badge::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--danger-color);
+      border-radius: 50%;
+      border: 1px solid #fff;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .user-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      object-fit: cover;
+      margin-right: 15px;
+    }
+
+    .user-info {
+      flex-grow: 1;
+    }
+
+    .user-name {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .edit-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.8;
+    }
+
+    .user-tier {
+      background-color: rgba(255, 255, 255, 0.2);
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .tier-expiry {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 3px;
+    }
+
+    .emoney-display {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .emoney-value {
+      font-family: var(--font-number);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .emoney-label {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    /* Quick Stats Bar */
+    .quick-stats {
+      display: flex;
+      background-color: var(--card-bg);
+      margin: -15px 15px 15px;
+      border-radius: 16px;
+      padding: 15px 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      z-index: 15;
+      position: relative;
+    }
+
+    .stat-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .stat-icon-wrapper {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 8px;
+      transition: transform 0.2s ease;
+    }
+
+    .stat-item:active .stat-icon-wrapper {
+      transform: scale(0.9);
+    }
+
+    .stat-icon-wrapper i {
+      width: 22px;
+      height: 22px;
+    }
+
+    .stat-icon-wrapper.red {
+      background-color: #ffebeb;
+      color: #ff4d4f;
+    }
+
+    .stat-icon-wrapper.pink {
+      background-color: #fff0f6;
+      color: #ff85c0;
+    }
+
+    .stat-icon-wrapper.purple {
+      background-color: #f9f0ff;
+      color: #b37feb;
+    }
+
+    .stat-icon-wrapper .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background-color: var(--danger-color);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--font-number);
+      min-width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 4px;
+      border: 1px solid #fff;
+    }
+
+    .stat-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stat-desc {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Membership Promo Banner */
+    .promo-banner {
+      margin: 0 15px 15px;
+      border-radius: 16px;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      height: 110px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .banner-overlay {
+      background: linear-gradient(90deg, rgba(255,240,243,0.95) 0%, rgba(255,245,247,0.7) 100%);
+      width: 100%;
+      height: 100%;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .banner-title {
+      color: #c2185b;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .banner-sub {
+      color: #880e4f;
+      font-size: 11px;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .banner-benefits {
+      list-style: none;
+      margin-top: 6px;
+    }
+
+    .banner-benefits li {
+      font-size: 11px;
+      color: #4a148c;
+      display: flex;
+      align-items: center;
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    .banner-benefits li .bullet {
+      margin-right: 6px;
+    }
+
+    .banner-benefits li .highlight {
+      color: var(--accent-color);
+      font-weight: 700;
+      margin-left: 3px;
+    }
+
+    /* Menu List */
+    .menu-list {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      margin: 0 15px 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 15px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .menu-item:active {
+      background-color: #fafafa;
+    }
+
+    .menu-label {
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      gap: 12px;
+    }
+
+    .menu-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+
+    .menu-icon.line-green {
+      color: #06c755;
+      width: 24px;
+      height: 24px;
+    }
+
+    .arrow-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--text-tertiary);
+    }
+
+    .pill-new {
+      background-color: #ff4d4f;
+      color: #fff;
+      font-size: 8px;
+      font-weight: 700;
+      font-family: var(--font-number);
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 6px;
+    }
+
+    .bold {
+      font-weight: 700;
+      display: block;
+    }
+
+    .subtext {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 400;
+      margin-top: 1px;
+    }
+
+    /* Persistent Bottom Nav Bar */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 50;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: color 0.2s ease;
+      flex: 1;
+    }
+
+    .nav-item i {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 4px;
+    }
+
+    .nav-item span {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .nav-item.active {
+      color: var(--primary-color);
+    }
+
+    /* SCREEN 2: ORDER LIST STYLE */
+    .orders-container {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .order-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.01);
+    }
+
+    .order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .order-no-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-number);
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .order-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .order-no {
+      font-weight: 600;
+    }
+
+    .order-badge-msg {
+      background-color: #ff4d4f;
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .order-status {
+      font-weight: 700;
+    }
+
+    .order-status.paid {
+      color: var(--primary-color);
+    }
+
+    .order-status.cancelled {
+      color: var(--text-tertiary);
+    }
+
+    .order-hotel-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .order-dates, .order-details {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .order-label {
+      color: var(--text-tertiary);
+      margin-right: 8px;
+    }
+
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px dashed var(--border-color);
+      padding-top: 10px;
+      margin-top: 5px;
+    }
+
+    .price-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-currency {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .price-value {
+      color: var(--accent-color);
+      font-family: var(--font-number);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .order-action-btn {
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .order-action-btn:active {
+      background-color: var(--primary-dark);
+    }
+
+    /* Empty State Chameleon Style */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 30px;
+      text-align: center;
+      flex-grow: 1;
+    }
+
+    .empty-mascot {
+      width: 140px;
+      height: auto;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* SCREEN 3: WRITE REVIEW STYLE */
+    .hotel-info-card {
+      background-color: var(--card-bg);
+      padding: 15px;
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .review-hotel-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .review-hotel-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .review-hotel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .review-hotel-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .review-hotel-dates, .review-hotel-orderno {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3px;
+    }
+
+    .review-hotel-dates span:first-child,
+    .review-hotel-orderno span:first-child {
+      color: var(--text-tertiary);
+    }
+
+    .review-form-content {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-section {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+    }
+
+    .section-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .picker-trigger {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background-color: #fff;
+      transition: border-color 0.2s;
+    }
+
+    .picker-trigger:active {
+      border-color: var(--primary-color);
+    }
+
+    .picker-trigger span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .picker-trigger span.placeholder {
+      color: var(--text-tertiary);
+    }
+
+    /* Rating Matrix Table styling */
+    .rating-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rating-row {
+      display: flex;
+      align-items: center;
+    }
+
+    .row-label {
+      width: 40px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .rating-pills {
+      flex-grow: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .pill {
+      flex: 1;
+      height: 28px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-color);
+      color: var(--text-secondary);
+      font-family: var(--font-number);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+
+    .pill:active {
+      transform: scale(0.9);
+    }
+
+    /* Custom rating fill behavior */
+    .pill.rating-selected {
+      background-color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0, 192, 127, 0.3);
+    }
+
+    .pill.rating-filled {
+      background-color: var(--primary-light) !important;
+      border-color: var(--primary-light) !important;
+      color: var(--primary-color) !important;
+    }
+
+    .pill.rating-empty {
+      background-color: var(--bg-color);
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    /* Comment Box */
+    .textarea-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    #review-comment {
+      width: 100%;
+      height: 120px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-main);
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #review-comment:focus {
+      border-color: var(--primary-color);
+    }
+
+    .char-counter {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-number);
+    }
+
+    /* Fixed Bottom Submit Bar */
+    .submit-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 15px;
+      z-index: 40;
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 44px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .submit-btn:active {
+      background-color: var(--primary-dark);
+      transform: scale(0.98);
+    }
+
+    /* SCREEN 4: REVIEWS HUB STYLE */
+    .reviews-hub-container {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .review-item-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(0, 0, 0, 0.01);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .review-item-summary {
+      padding: 15px;
+      display: flex;
+      gap: 12px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .review-item-img {
+      width: 70px;
+      height: 70px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .review-item-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .review-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .review-item-dates {
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+
+    .review-item-rating {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .review-item-rating .score {
+      color: var(--primary-color);
+      font-family: var(--font-number);
+      font-size: 16px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    .review-expand-indicator {
+      position: absolute;
+      right: 15px;
+      bottom: 15px;
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      transition: transform 0.3s;
+    }
+
+    .review-expand-indicator i {
+      width: 14px;
+      height: 14px;
+      margin-left: 2px;
+    }
+
+    /* Detail ratings panel (collapsible) */
+    .review-item-details-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: #fcfcfd;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .review-item-card.expanded .review-item-details-panel {
+      max-height: 500px; /* Large enough value to auto expand */
+    }
+
+    .review-item-card.expanded .review-expand-indicator {
+      transform: rotate(180deg);
+    }
+
+    .details-panel-content {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .details-traveler-type {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      gap: 10px;
+    }
+
+    .details-traveler-type span:first-child {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .details-matrix-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      margin-bottom: 2px;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .details-grid-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.01);
+    }
+
+    .grid-icon-wrapper {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grid-icon-wrapper i {
+      width: 20px;
+      height: 20px;
+    }
+
+    .grid-item-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .grid-item-score {
+      font-family: var(--font-number);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .details-comment-section {
+      margin-top: 5px;
+    }
+
+    .details-comment-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+
+    .details-comment-text {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    /* MODALS STYLING */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      width: 100%;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .option-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .option-item {
+      padding: 15px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    .option-item:last-child {
+      border-bottom: none;
+    }
+
+    .option-item:active {
+      background-color: #fafafa;
+      color: var(--primary-color);
+    }
+
+    /* Alert dialog modal (Success message) */
+    .alert-modal {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .alert-content {
+      background-color: var(--card-bg);
+      width: 270px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transform: scale(0.9);
+      transition: transform 0.2s ease;
+      text-align: center;
+    }
+
+    .modal-overlay.active .alert-content {
+      transform: scale(1);
+    }
+
+    .alert-message {
+      padding: 22px 18px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .alert-confirm-btn {
+      width: 100%;
+      height: 44px;
+      border: none;
+      background-color: transparent;
+      border-top: 1px solid var(--border-color);
+      font-size: 16px;
+      color: var(--primary-color);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .alert-confirm-btn:active {
+      background-color: #f7f7f7;
+    }
+
+    /* Animation Utilities */
+    .animate-slide-up {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-zoom-in {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mock Device Container for Desktop, Fullscreen on Mobile -->
+  <div class="device-container">
+    <div class="device-screen">
+      
+      <!-- Top Status Bar Mock -->
+      <div class="status-bar">
+        <span class="status-time" id="status-clock">20:28</span>
+        <div class="status-icons">
+          <i data-lucide="signal" class="status-icon"></i>
+          <span class="status-net">4G+</span>
+          <i data-lucide="wifi" class="status-icon"></i>
+          <i data-lucide="battery" class="status-icon"></i>
+          <span class="status-battery-percent">25</span>
+        </div>
+      </div>
+
+      <!-- DEMO NAVIGATION BAR (Floating & Absolute Routing) -->
+      <div id="demo">
+        <button onclick="navigateTo('screen-profile')">個人首頁</button>
+        <button onclick="navigateTo('screen-orders', 'all')">訂單查詢</button>
+        <button onclick="navigateTo('screen-review-form', 'ORD0018452470')">填寫評鑑</button>
+        <button onclick="navigateTo('screen-reviews-hub')">評鑑中心</button>
+      </div>
+
+      <!-- Main Content Area with Sliding Screens -->
+      <div class="screen-wrapper">
+
+        <!-- SCREEN 1: PROFILE PAGE (我的) -->
+        <section id="screen-profile" class="screen">
+          <!-- Profile Header -->
+          <div class="profile-header">
+            <div class="header-actions">
+              <i data-lucide="settings" class="action-btn"></i>
+              <i data-lucide="bell" class="action-btn notification-badge"></i>
+            </div>
+            <div class="user-card">
+              <img src="assets/avatar.png" alt="User Avatar" class="user-avatar">
+              <div class="user-info">
+                <div class="user-name">Hi, 飛仔 <i data-lucide="edit-3" class="edit-icon"></i></div>
+                <div class="user-tier">鑽石會員</div>
+                <div class="tier-expiry">效期至 2027-06-30</div>
+              </div>
+              <div class="emoney-display">
+                <span class="emoney-value">884</span>
+                <span class="emoney-label">貼心 eMoney</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats">
+            <div class="stat-item" onclick="navigateTo('screen-orders', 'all')">
+              <div class="stat-icon-wrapper red">
+                <i data-lucide="clipboard-list"></i>
+                <span class="badge">4</span>
+              </div>
+              <span class="stat-name">訂單查詢</span>
+              <span class="stat-desc">未讀訊息4</span>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon-wrapper pink">
+                <i data-lucide="ticket"></i>
+                <span class="badge">11</span>
+              </div>
+              <span class="stat-name">折扣碼</span>
+              <span class="stat-desc">未使用11</span>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon-wrapper purple">
+                <i data-lucide="heart"></i>
+              </div>
+              <span class="stat-name">我的收藏</span>
+              <span class="stat-desc">近三個月</span>
+            </div>
+          </div>
+
+          <!-- Promotion Banner -->
+          <div class="promo-banner" style="background-image: url('assets/banner.png');">
+            <div class="banner-overlay">
+              <div class="banner-title">寵粉行動 - 會員權益大升級</div>
+              <div class="banner-sub">您是鑽石會員，可享有以下好康</div>
+              <ul class="banner-benefits">
+                <li><span class="bullet">🎂</span> 壽星免費領生日大禮金 <span class="highlight">6,500 元</span></li>
+                <li><span class="bullet">💰</span> 下單賺取 eMoney <span class="highlight">200% 回饋</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Profile Menu -->
+          <div class="menu-list">
+            <div class="menu-item">
+              <div class="menu-label">
+                <i data-lucide="user" class="menu-icon"></i>
+                <span>會員資料管理</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item">
+              <div class="menu-label">
+                <i data-lucide="users" class="menu-icon"></i>
+                <span>我的好友</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item">
+              <div class="menu-label">
+                <i data-lucide="coins" class="menu-icon"></i>
+                <span>eMoney 點數</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item">
+              <div class="menu-label">
+                <i data-lucide="credit-card" class="menu-icon"></i>
+                <span>卡片管理</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item promo-item">
+              <div class="menu-label">
+                <i data-lucide="gift" class="menu-icon"></i>
+                <span>邀請好友賺獎勵</span>
+                <span class="pill-new">NEW</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item" onclick="navigateTo('screen-reviews-hub')">
+              <div class="menu-label">
+                <i data-lucide="message-square" class="menu-icon"></i>
+                <span>訂房評鑑</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item">
+              <div class="menu-label">
+                <i data-lucide="trophy" class="menu-icon"></i>
+                <span>中獎紀錄</span>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+            <div class="menu-item line-item">
+              <div class="menu-label">
+                <i data-lucide="message-circle" class="menu-icon line-green"></i>
+                <div>
+                  <span class="bold">加入易遊網 LINE 官方帳號</span>
+                  <span class="subtext">最殺旅遊特惠 + 最即時的旅程通知</span>
+                </div>
+              </div>
+              <i data-lucide="chevron-right" class="arrow-icon"></i>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- SCREEN 2: ORDER SEARCH (訂單查詢) -->
+        <section id="screen-orders" class="screen">
+          <!-- Screen Header -->
+          <div class="screen-header">
+            <i data-lucide="arrow-left" class="back-btn" onclick="navigateBack()"></i>
+            <h1 class="header-title">訂單查詢</h1>
+            <div class="header-right-placeholder"></div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tabs-bar">
+            <div class="tab-item" onclick="setOrderTab('upcoming')">即將啟程</div>
+            <div class="tab-item" onclick="setOrderTab('payment')">待付款</div>
+            <div class="tab-item" onclick="setOrderTab('pending')">待評鑑</div>
+            <div class="tab-item active" onclick="setOrderTab('all')">全部訂單</div>
+          </div>
+
+          <!-- Alert Banner -->
+          <div class="alert-banner">
+            <i data-lucide="alert-triangle" class="alert-icon"></i>
+            <span class="alert-text">米克拉颱風影響公告</span>
+            <i data-lucide="chevron-right" class="alert-arrow"></i>
+          </div>
+
+          <!-- Order List Container -->
+          <div class="orders-container" id="orders-list">
+            <!-- Dynamic order items injected here -->
+          </div>
+        </section>
+
+
+        <!-- SCREEN 3: WRITE REVIEW (填寫評鑑) -->
+        <section id="screen-review-form" class="screen active">
+          <!-- Screen Header -->
+          <div class="screen-header">
+            <i data-lucide="arrow-left" class="back-btn" onclick="navigateBack()"></i>
+            <h1 class="header-title">訂房評鑑</h1>
+            <button class="header-right-action text-btn green" onclick="clearReviewForm()">清除</button>
+          </div>
+
+          <!-- Hotel Card Header -->
+          <div class="hotel-info-card">
+            <img src="assets/hotel_jr.png" alt="Hotel Photo" class="review-hotel-img" id="review-hotel-img">
+            <div class="review-hotel-details">
+              <h2 class="review-hotel-title" id="review-hotel-title">JR九州花博中心酒店</h2>
+              <p class="review-hotel-subtitle" id="review-hotel-room-type">高級雙人房(Sleeps2), 高級雙人房 (Sleeps2)</p>
+              <div class="review-hotel-dates">
+                <span>入住退房</span>
+                <span id="review-hotel-stay-dates">2023-05-08 至 2023-05-12</span>
+              </div>
+              <div class="review-hotel-orderno">
+                <span>訂單編號</span>
+                <span id="review-hotel-orderno">ORD0018452470</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Area -->
+          <div class="review-form-content">
+            <!-- Traveler Type Picker -->
+            <div class="form-section">
+              <label class="section-label">旅客類型</label>
+              <div class="picker-trigger" onclick="openTravelerTypeModal()">
+                <span id="selected-traveler-type" class="placeholder">請選擇</span>
+                <i data-lucide="chevron-right" class="arrow-icon"></i>
+              </div>
+            </div>
+
+            <!-- Rating Matrix -->
+            <div class="form-section">
+              <label class="section-label">細項評分</label>
+              
+              <div class="rating-rows">
+                <!-- Cleanliness -->
+                <div class="rating-row" data-category="cleanliness">
+                  <span class="row-label">整潔</span>
+                  <div class="rating-pills">
+                    <button class="pill">1</button>
+                    <button class="pill">2</button>
+                    <button class="pill">3</button>
+                    <button class="pill">4</button>
+                    <button class="pill">5</button>
+                    <button class="pill">6</button>
+                    <button class="pill">7</button>
+                    <button class="pill">8</button>
+                    <button class="pill">9</button>
+                    <button class="pill">10</button>
+                  </div>
+                </div>
+
+                <!-- Location -->
+                <div class="rating-row" data-category="location">
+                  <span class="row-label">地點</span>
+                  <div class="rating-pills">
+                    <button class="pill">1</button>
+                    <button class="pill">2</button>
+                    <button class="pill">3</button>
+                    <button class="pill">4</button>
+                    <button class="pill">5</button>
+                    <button class="pill">6</button>
+                    <button class="pill">7</button>
+                    <button class="pill">8</button>
+                    <button class="pill">9</button>
+                    <button class="pill">10</button>
+                  </div>
+                </div>
+
+                <!-- Food -->
+                <div class="rating-row" data-category="dining">
+                  <span class="row-label">餐飲</span>
+                  <div class="rating-pills">
+                    <button class="pill">1</button>
+                    <button class="pill">2</button>
+                    <button class="pill">3</button>
+                    <button class="pill">4</button>
+                    <button class="pill">5</button>
+                    <button class="pill">6</button>
+                    <button class="pill">7</button>
+                    <button class="pill">8</button>
+                    <button class="pill">9</button>
+                    <button class="pill">10</button>
+                  </div>
+                </div>
+
+                <!-- Service -->
+                <div class="rating-row" data-category="service">
+                  <span class="row-label">服務</span>
+                  <div class="rating-pills">
+                    <button class="pill">1</button>
+                    <button class="pill">2</button>
+                    <button class="pill">3</button>
+                    <button class="pill">4</button>
+                    <button class="pill">5</button>
+                    <button class="pill">6</button>
+                    <button class="pill">7</button>
+                    <button class="pill">8</button>
+                    <button class="pill">9</button>
+                    <button class="pill">10</button>
+                  </div>
+                </div>
+
+                <!-- Facilities -->
+                <div class="rating-row" data-category="facilities">
+                  <span class="row-label">設施</span>
+                  <div class="rating-pills">
+                    <button class="pill">1</button>
+                    <button class="pill">2</button>
+                    <button class="pill">3</button>
+                    <button class="pill">4</button>
+                    <button class="pill">5</button>
+                    <button class="pill">6</button>
+                    <button class="pill">7</button>
+                    <button class="pill">8</button>
+                    <button class="pill">9</button>
+                    <button class="pill">10</button>
+                  </div>
+                </div>
+
+                <!-- Value -->
+                <div class="rating-row" data-category="value">
+                  <span class="row-label">超值</span>
+                  <div class="rating-pills">
+                    <button class="pill">1</button>
+                    <button class="pill">2</button>
+                    <button class="pill">3</button>
+                    <button class="pill">4</button>
+                    <button class="pill">5</button>
+                    <button class="pill">6</button>
+                    <button class="pill">7</button>
+                    <button class="pill">8</button>
+                    <button class="pill">9</button>
+                    <button class="pill">10</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comment Textarea -->
+            <div class="form-section">
+              <div class="textarea-wrapper">
+                <textarea id="review-comment" placeholder="請輸入您的評語 (必填)" maxlength="1000"></textarea>
+                <div class="char-counter"><span id="current-char-count">0</span>/1000</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button Fixed Bottom -->
+          <div class="submit-bar">
+            <button class="submit-btn" onclick="submitReview()">確認</button>
+          </div>
+        </section>
+
+
+        <!-- SCREEN 4: HOTEL REVIEWS HUB (訂房評鑑入口) -->
+        <section id="screen-reviews-hub" class="screen">
+          <!-- Screen Header -->
+          <div class="screen-header">
+            <i data-lucide="arrow-left" class="back-btn" onclick="navigateBack()"></i>
+            <h1 class="header-title">訂房評鑑</h1>
+            <button class="header-right-action text-btn gray">說明</button>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tabs-bar">
+            <div class="tab-item active" onclick="setReviewsHubTab('pending')">未完成評鑑</div>
+            <div class="tab-item" onclick="setReviewsHubTab('completed')">已完成評鑑</div>
+          </div>
+
+          <!-- Review List Container -->
+          <div class="reviews-hub-container" id="reviews-hub-list">
+            <!-- Dynamic review listings injected here -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Persistent Bottom Navigation Bar -->
+      <nav class="bottom-nav" id="bottom-nav">
+        <div class="nav-item">
+          <i data-lucide="home"></i>
+          <span>首頁</span>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="help-circle"></i>
+          <span>服務/諮詢</span>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="percent"></i>
+          <span>優惠</span>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="calendar"></i>
+          <span>行程</span>
+        </div>
+        <div class="nav-item active" onclick="navigateTo('screen-profile')">
+          <i data-lucide="user"></i>
+          <span>我的</span>
+        </div>
+      </nav>
+
+    </div>
+
+    <!-- MODAL 1: Traveler Type Selector -->
+    <div class="modal-overlay" id="traveler-modal" onclick="closeTravelerTypeModal()">
+      <div class="modal-content animate-slide-up" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">旅客類型</h3>
+        </div>
+        <div class="modal-body">
+          <div class="option-list">
+            <div class="option-item" onclick="selectTravelerType('家庭')">家庭</div>
+            <div class="option-item" onclick="selectTravelerType('夫妻/情侶')">夫妻/情侶</div>
+            <div class="option-item" onclick="selectTravelerType('朋友')">朋友</div>
+            <div class="option-item" onclick="selectTravelerType('單獨旅行')">單獨旅行</div>
+            <div class="option-item" onclick="selectTravelerType('商務')">商務</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Alert Success Modal -->
+    <div class="modal-overlay alert-modal" id="alert-modal">
+      <div class="alert-content animate-zoom-in">
+        <div class="alert-message">送出成功</div>
+        <button class="alert-confirm-btn" onclick="closeAlertModal()">確認</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Mock Database State
+    const state = {
+      // Navigation History Stack
+      historyStack: ['screen-profile', 'screen-review-form'],
+      
+      // Current active tabs
+      activeOrderTab: 'all',
+      activeReviewsHubTab: 'pending',
+      
+      // Orders List (American Flight price/dates removed/blanked out to satisfy safety requirements)
+      orders: [
+        {
+          id: 'ORD003030385242',
+          type: 'flight',
+          title: 'CI/台北/洛杉磯(CA)/台北/中華航空-TPE/ONT ONT/TPE',
+          date: '',         // Date hidden
+          departure: '',    // Date hidden
+          price: null,      // Amount hidden
+          status: 'paid',
+          badge: 4,
+          reviewable: false
+        },
+        {
+          id: 'ORD0029166252',
+          type: 'flight',
+          title: 'CA/台北/上海/台北/中國國際航空-TSA/SHA SHA/TSA',
+          date: '2026-03-10',
+          departure: '2026-04-09',
+          price: 17534,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0027799449',
+          type: 'flight',
+          title: 'TG/台北/曼谷/台北/泰國航空-TPE/BKK BKK/TPE',
+          date: '2025-11-27',
+          departure: '2026-01-23',
+          price: 41966,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0027482506',
+          type: 'flight',
+          title: 'AE/台北/福州/台北/華信航空-TSA/FOC FOC/TSA',
+          date: '2025-11-05',
+          departure: '2025-11-26',
+          price: 21335,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0025210029',
+          type: 'flight',
+          title: 'CI/台北/釜山/台北/中華航空-TPE/PUS PUS/TPE',
+          date: '2025-05-14',
+          departure: '2025-07-27',
+          price: 43618,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0022570798',
+          type: 'flight',
+          title: 'BR/福岡/台北/長榮航空-FUK/TPE',
+          date: '2024-08-29',
+          departure: '2024-08-31',
+          price: 42499,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0022570665',
+          type: 'flight',
+          title: 'BR/福岡/台北/長榮航空-FUK/TPE',
+          date: '2024-08-29',
+          departure: '2024-08-31',
+          price: 15773,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0022360615',
+          type: 'flight',
+          title: 'BR/台北/福岡/台北/長榮航空-TPE/FUK FUK/TPE',
+          date: '2024-08-06',
+          departure: '2024-08-25',
+          price: 46950,
+          status: 'paid',
+          reviewable: false
+        },
+        {
+          id: 'ORD0018452470',
+          type: 'hotel',
+          title: 'JR九州花博中心酒店 (JR Kyushu Hotel Blossom Hakata Central)',
+          subtitle: '高級雙人房(Sleeps2), 高級雙人房 (Sleeps2)',
+          image: 'assets/hotel_jr.png',
+          date: '2023-05-08',
+          departure: '2023-05-12',
+          price: 43838,
+          status: 'paid',
+          reviewable: true,
+          hasReviewed: false
+        },
+        {
+          id: 'ORD0018091726',
+          type: 'hotel',
+          title: '高雄水京棧國際酒店(H2O Hotel)',
+          subtitle: '尊爵雙人房(Sleeps3), 3份早餐, 1張單人床 和 1張雙人床',
+          image: '',
+          date: '2023-02-10',
+          departure: '2023-02-10',
+          price: 0,
+          status: 'cancelled',
+          reviewable: false
+        }
+      ],
+
+      // Completed Reviews
+      reviews: [
+        {
+          orderId: 'ORD0014868186',
+          hotelTitle: '薆悅酒店 野柳渡假館',
+          image: 'assets/hotel_ya.png',
+          dates: '2020-05-02 至 2020-05-03',
+          travelerType: '家庭',
+          ratings: {
+            cleanliness: 7,
+            location: 8,
+            dining: 7,
+            service: 8,
+            facilities: 9,
+            value: 10
+          },
+          averageScore: 9,
+          comment: '小孩玩到不想走'
+        }
+      ],
+
+      // Current active review form state
+      currentReview: {
+        orderId: '',
+        hotelTitle: '',
+        image: '',
+        dates: '',
+        travelerType: '',
+        ratings: {
+          cleanliness: 0,
+          location: 0,
+          dining: 0,
+          service: 0,
+          facilities: 0,
+          value: 0
+        },
+        comment: ''
+      }
+    };
+
+    // Initialize Application
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sync lucide icons
+      lucide.createIcons();
+      
+      // Start clock
+      updateClock();
+      setInterval(updateClock, 60000);
+      
+      // Render screens initially
+      renderOrders();
+      renderReviewsHub();
+      
+      // Set up rating pill click handlers
+      setupRatingPills();
+      
+      // Set up comment character counter
+      const textarea = document.getElementById('review-comment');
+      textarea.addEventListener('input', (e) => {
+        const len = e.target.value.length;
+        document.getElementById('current-char-count').innerText = len;
+      });
+
+      // Load the JR hotel review details by default on startup
+      loadReviewForm('ORD0018452470');
+    });
+
+    // Update Simulated Device Clock
+    function updateClock() {
+      const clock = document.getElementById('status-clock');
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      hours = hours < 10 ? '0' + hours : hours;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      clock.innerText = `${hours}:${minutes}`;
+    }
+
+    // NAVIGATION ROUTING
+    function navigateTo(screenId, param = null) {
+      // Hide active screen
+      const currentActive = document.querySelector('.screen.active');
+      if (currentActive) {
+        currentActive.classList.remove('active');
+      }
+      
+      // Show new screen
+      const targetScreen = document.getElementById(screenId);
+      targetScreen.classList.add('active');
+      
+      // Add to history stack (avoid adding duplicates consecutively)
+      if (state.historyStack[state.historyStack.length - 1] !== screenId) {
+        state.historyStack.push(screenId);
+      }
+      
+      // Show/Hide bottom navigation
+      const bottomNav = document.getElementById('bottom-nav');
+      if (screenId === 'screen-profile') {
+        bottomNav.style.display = 'flex';
+      } else {
+        bottomNav.style.display = 'none';
+      }
+      
+      // Handle Screen-Specific Operations
+      if (screenId === 'screen-orders') {
+        if (param) {
+          setOrderTab(param);
+        } else {
+          renderOrders();
+        }
+      } else if (screenId === 'screen-reviews-hub') {
+        renderReviewsHub();
+      } else if (screenId === 'screen-review-form' && param) {
+        // Setting up the form for a specific order
+        loadReviewForm(param);
+      }
+      
+      // Re-sync Lucide icons for dynamically created HTML elements
+      lucide.createIcons();
+    }
+
+    function navigateBack() {
+      if (state.historyStack.length <= 1) return;
+      
+      // Pop current screen
+      state.historyStack.pop();
+      
+      // Get previous screen
+      const prevScreenId = state.historyStack[state.historyStack.length - 1];
+      
+      // Hide active screen
+      const currentActive = document.querySelector('.screen.active');
+      if (currentActive) {
+        currentActive.classList.remove('active');
+      }
+      
+      // Show previous screen
+      document.getElementById(prevScreenId).classList.add('active');
+      
+      // Show/Hide bottom navigation
+      const bottomNav = document.getElementById('bottom-nav');
+      if (prevScreenId === 'screen-profile') {
+        bottomNav.style.display = 'flex';
+      } else {
+        bottomNav.style.display = 'none';
+      }
+      
+      // Render screens on back navigation
+      if (prevScreenId === 'screen-orders') {
+        renderOrders();
+      } else if (prevScreenId === 'screen-reviews-hub') {
+        renderReviewsHub();
+      }
+      
+      lucide.createIcons();
+    }
+
+    // ORDER TAB MANAGEMENT
+    function setOrderTab(tabName) {
+      state.activeOrderTab = tabName;
+      
+      // Update Tab active style
+      const tabs = document.querySelectorAll('#screen-orders .tab-item');
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (tabName === 'upcoming' && tab.innerText === '即將啟程') tab.classList.add('active');
+        if (tabName === 'payment' && tab.innerText === '待付款') tab.classList.add('active');
+        if (tabName === 'pending' && tab.innerText === '待評鑑') tab.classList.add('active');
+        if (tabName === 'all' && tab.innerText === '全部訂單') tab.classList.add('active');
+      });
+      
+      renderOrders();
+    }
+
+    // RENDER ORDERS SCREEN (With conditional rendering for security)
+    function renderOrders() {
+      const container = document.getElementById('orders-list');
+      container.innerHTML = '';
+      
+      let filtered = [...state.orders];
+      
+      if (state.activeOrderTab === 'upcoming') {
+        filtered = filtered.filter(o => o.id === 'ORD003030385242'); // Flight on 2026-07-14
+      } else if (state.activeOrderTab === 'payment') {
+        filtered = []; // None pending payment in video
+      } else if (state.activeOrderTab === 'pending') {
+        filtered = filtered.filter(o => o.reviewable && !o.hasReviewed);
+      }
+      
+      if (filtered.length === 0) {
+        // Show empty chameleon screen
+        container.innerHTML = `
+          <div class="empty-state">
+            <img src="assets/chameleon.png" alt="Chameleon Mascot" class="empty-mascot">
+            <h3 class="empty-title">尚無待評鑑的飯店</h3>
+            <p class="empty-desc">完成住宿並填寫評鑑，就能賺 eMoney！您的意見就是我們進步的動力</p>
+          </div>
+        `;
+        return;
+      }
+      
+      filtered.forEach(order => {
+        const statusText = order.status === 'paid' ? '已付款' : '已取消';
+        const statusClass = order.status === 'paid' ? 'paid' : 'cancelled';
+        
+        let actionButton = '';
+        if (order.reviewable && !order.hasReviewed) {
+          actionButton = `<button class="order-action-btn" onclick="navigateTo('screen-review-form', '${order.id}')">填寫評鑑</button>`;
+        } else if (order.reviewable && order.hasReviewed) {
+          actionButton = `<button class="order-action-btn" style="background-color: var(--text-tertiary);" disabled>已完成評鑑</button>`;
+        }
+        
+        let badgeHtml = order.badge ? `<span class="order-badge-msg">未讀訊息 ${order.badge}</span>` : '';
+        
+        // Icon mapping
+        const iconName = order.type === 'flight' ? 'plane' : 'hotel';
+        
+        // Conditional Rendering for Security (American Date and Amount hidden)
+        let datesHtml = '';
+        if (order.date) {
+          datesHtml += `<div><span class="order-label">訂購日期</span>${order.date}</div>`;
+        }
+        if (order.departure) {
+          datesHtml += `<div><span class="order-label">出發日期</span>${order.departure}</div>`;
+        }
+        
+        let priceHtml = '';
+        if (order.price !== null && order.price !== undefined) {
+          const priceFormatted = order.price > 0 ? `TWD ${order.price.toLocaleString()}` : '已退款/免費';
+          priceHtml = `
+            <div class="price-wrapper">
+              <span class="price-currency">總額</span>
+              <span class="price-value">${priceFormatted}</span>
+            </div>
+          `;
+        }
+        
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        card.innerHTML = `
+          <div class="order-card-header">
+            <div class="order-no-wrapper">
+              <i data-lucide="${iconName}" class="order-icon"></i>
+              <span>訂單編號 <span class="order-no">${order.id}</span></span>
+              ${badgeHtml}
+            </div>
+            <span class="order-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="order-hotel-name">${order.title}</div>
+          ${datesHtml ? `<div class="order-dates">${datesHtml}</div>` : ''}
+          <div class="order-footer">
+            ${priceHtml}
+            ${actionButton}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      
+      lucide.createIcons();
+    }
+
+    // REVIEWS HUB TAB MANAGEMENT
+    function setReviewsHubTab(tabName) {
+      state.activeReviewsHubTab = tabName;
+      
+      const tabs = document.querySelectorAll('#screen-reviews-hub .tab-item');
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (tabName === 'pending' && tab.innerText === '未完成評鑑') tab.classList.add('active');
+        if (tabName === 'completed' && tab.innerText === '已完成評鑑') tab.classList.add('active');
+      });
+      
+      renderReviewsHub();
+    }
+
+    // RENDER REVIEWS HUB SCREEN
+    function renderReviewsHub() {
+      const container = document.getElementById('reviews-hub-list');
+      container.innerHTML = '';
+      
+      if (state.activeReviewsHubTab === 'pending') {
+        const pendingOrders = state.orders.filter(o => o.reviewable && !o.hasReviewed);
+        
+        if (pendingOrders.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <img src="assets/chameleon.png" alt="Chameleon Mascot" class="empty-mascot">
+              <h3 class="empty-title">尚無待評鑑的飯店</h3>
+              <p class="empty-desc">完成住宿並填寫評鑑，就能賺 eMoney！您的意見就是我們進步的動力</p>
+            </div>
+          `;
+          return;
+        }
+        
+        pendingOrders.forEach(order => {
+          const card = document.createElement('div');
+          card.className = 'order-card';
+          card.innerHTML = `
+            <div class="order-card-header">
+              <div class="order-no-wrapper">
+                <i data-lucide="hotel" class="order-icon"></i>
+                <span>訂單編號 <span class="order-no">${order.id}</span></span>
+              </div>
+              <span class="order-status paid">待評鑑</span>
+            </div>
+            <div class="order-hotel-name">${order.title}</div>
+            <div class="order-dates">
+              <div><span class="order-label">入住退房</span>${order.date} 至 ${order.departure}</div>
+            </div>
+            <div class="order-footer" style="justify-content: flex-end;">
+              <button class="order-action-btn" onclick="navigateTo('screen-review-form', '${order.id}')">填寫評鑑</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+        
+      } else {
+        if (state.reviews.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p class="empty-desc">尚無已完成的評鑑</p>
+            </div>
+          `;
+          return;
+        }
+        
+        state.reviews.forEach(review => {
+          const card = document.createElement('div');
+          card.className = 'review-item-card';
+          
+          const gridItems = [
+            { key: 'cleanliness', label: '整潔', icon: 'sparkles' },
+            { key: 'location', label: '地點', icon: 'map-pin' },
+            { key: 'dining', label: '餐飲', icon: 'coffee' },
+            { key: 'service', label: '服務', icon: 'clock' },
+            { key: 'facilities', label: '設施', icon: 'waves' },
+            { key: 'value', label: '超值', icon: 'tag' }
+          ];
+          
+          let gridHtml = '';
+          gridItems.forEach(item => {
+            gridHtml += `
+              <div class="details-grid-item">
+                <div class="grid-icon-wrapper"><i data-lucide="${item.icon}"></i></div>
+                <span class="grid-item-label">${item.label}</span>
+                <span class="grid-item-score">${review.ratings[item.key]}分</span>
+              </div>
+            `;
+          });
+          
+          card.innerHTML = `
+            <div class="review-item-summary" onclick="toggleReviewCard(this)">
+              <img src="${review.image}" alt="Hotel" class="review-item-img">
+              <div class="review-item-info">
+                <h3 class="review-item-title">${review.hotelTitle}</h3>
+                <span class="review-item-dates">入住退房: ${review.dates}</span>
+                <span class="review-item-rating">您的評分 <span class="score">${review.averageScore}分</span></span>
+              </div>
+              <div class="review-expand-indicator">
+                <i data-lucide="chevron-down"></i>
+              </div>
+            </div>
+            <div class="review-item-details-panel">
+              <div class="details-panel-content">
+                <div class="details-traveler-type">
+                  <span>旅客類型</span>
+                  <span>${review.travelerType}</span>
+                </div>
+                
+                <div class="details-matrix-title">細項評分</div>
+                <div class="details-grid">
+                  ${gridHtml}
+                </div>
+                
+                <div class="details-comment-section">
+                  <div class="details-comment-title">評語</div>
+                  <div class="details-comment-text">${review.comment}</div>
+                </div>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+      
+      lucide.createIcons();
+    }
+
+    // Collapsible completed review cards
+    function toggleReviewCard(summaryEl) {
+      const card = summaryEl.parentElement;
+      
+      const allCards = document.querySelectorAll('.review-item-card');
+      allCards.forEach(c => {
+        if (c !== card && c.classList.contains('expanded')) {
+          c.classList.remove('expanded');
+        }
+      });
+      
+      card.classList.toggle('expanded');
+    }
+
+    // REVIEW FORM MANAGEMENT
+    function loadReviewForm(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      state.currentReview.orderId = orderId;
+      state.currentReview.hotelTitle = order.title;
+      state.currentReview.image = order.image;
+      state.currentReview.dates = `${order.date} 至 ${order.departure}`;
+      
+      document.getElementById('review-hotel-title').innerText = order.title;
+      document.getElementById('review-hotel-room-type').innerText = order.subtitle;
+      document.getElementById('review-hotel-stay-dates').innerText = `${order.date} 至 ${order.departure}`;
+      document.getElementById('review-hotel-orderno').innerText = orderId;
+      document.getElementById('review-hotel-img').src = order.image || 'assets/hotel_jr.png';
+      
+      clearReviewForm();
+    }
+
+    function clearReviewForm() {
+      state.currentReview.travelerType = '';
+      const typeText = document.getElementById('selected-traveler-type');
+      typeText.innerText = '請選擇';
+      typeText.className = 'placeholder';
+      
+      for (let key in state.currentReview.ratings) {
+        state.currentReview.ratings[key] = 0;
+      }
+      
+      const pills = document.querySelectorAll('.rating-row .pill');
+      pills.forEach(pill => {
+        pill.className = 'pill rating-empty';
+      });
+      
+      state.currentReview.comment = '';
+      document.getElementById('review-comment').value = '';
+      document.getElementById('current-char-count').innerText = 0;
+    }
+
+    // RATING SELECTION LOGIC
+    function setupRatingPills() {
+      const rows = document.querySelectorAll('.rating-row');
+      
+      rows.forEach(row => {
+        const category = row.getAttribute('data-category');
+        const pills = row.querySelectorAll('.pill');
+        
+        pills.forEach(pill => {
+          pill.addEventListener('click', () => {
+            const val = parseInt(pill.innerText);
+            state.currentReview.ratings[category] = val;
+            updateRowPills(row, val);
+          });
+        });
+      });
+    }
+
+    function updateRowPills(rowEl, selectedValue) {
+      const pills = rowEl.querySelectorAll('.pill');
+      
+      pills.forEach(pill => {
+        const val = parseInt(pill.innerText);
+        
+        if (val < selectedValue) {
+          pill.className = 'pill rating-filled'; // Progress fill (light green)
+        } else if (val === selectedValue) {
+          pill.className = 'pill rating-selected'; // Selected value (solid dark green)
+        } else {
+          pill.className = 'pill rating-empty'; // Unselected (gray)
+        }
+      });
+    }
+
+    // Traveler Type Modal
+    function openTravelerTypeModal() {
+      document.getElementById('traveler-modal').classList.add('active');
+    }
+
+    // Close traveler modal
+    function closeTravelerTypeModal() {
+      document.getElementById('traveler-modal').classList.remove('active');
+    }
+
+    function selectTravelerType(type) {
+      state.currentReview.travelerType = type;
+      
+      const typeText = document.getElementById('selected-traveler-type');
+      typeText.innerText = type;
+      typeText.className = ''; // remove placeholder class
+      
+      closeTravelerTypeModal();
+    }
+
+    // Success Pop-ups
+    function openAlertModal() {
+      document.getElementById('alert-modal').classList.add('active');
+    }
+
+    function closeAlertModal() {
+      document.getElementById('alert-modal').classList.remove('active');
+      navigateTo('screen-profile');
+    }
+
+    // SUBMIT REVIEW
+    function submitReview() {
+      const r = state.currentReview;
+      
+      if (!r.travelerType) {
+        alert('請選擇旅客類型');
+        return;
+      }
+      
+      let ratingsFilled = true;
+      for (let key in r.ratings) {
+        if (r.ratings[key] === 0) {
+          ratingsFilled = false;
+          break;
+        }
+      }
+      if (!ratingsFilled) {
+        alert('請填寫所有細項評分');
+        return;
+      }
+      
+      const commentVal = document.getElementById('review-comment').value.trim();
+      if (!commentVal) {
+        alert('請填寫評語');
+        return;
+      }
+      r.comment = commentVal;
+      
+      let total = 0;
+      let count = 0;
+      for (let key in r.ratings) {
+        total += r.ratings[key];
+        count++;
+      }
+      const average = Math.round(total / count);
+      
+      const newReview = {
+        orderId: r.orderId,
+        hotelTitle: r.hotelTitle,
+        image: r.image || 'assets/hotel_jr.png',
+        dates: r.dates,
+        travelerType: r.travelerType,
+        ratings: { ...r.ratings },
+        averageScore: average,
+        comment: r.comment
+      };
+      
+      state.reviews.unshift(newReview);
+      
+      const order = state.orders.find(o => o.id === r.orderId);
+      if (order) {
+        order.hasReviewed = true;
+      }
+      
+      openAlertModal();
+    }
+  </script>
+</body>
+</html>
