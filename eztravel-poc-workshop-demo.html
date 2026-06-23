@@ -1414,6 +1414,66 @@
     .animate-zoom-in {
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    /* Traveler Type Section (Inline layout) */
+    .traveler-section {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+    }
+
+    .traveler-section .section-label {
+      margin-bottom: 0 !important;
+      font-size: 14px;
+    }
+
+    .traveler-section .picker-trigger {
+      width: auto;
+      min-width: 90px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      gap: 6px;
+    }
+
+    /* Traveler Type Dropdown Popover on the Right */
+    #traveler-modal {
+      display: flex;
+      justify-content: flex-end; /* Align to the right side of the device screen */
+      align-items: flex-start; /* Align to the top near the picker */
+      padding-top: 100px; /* Position next to the row */
+      padding-right: 12px;
+    }
+
+    #traveler-modal .modal-content {
+      width: 130px; /* Compact popover width */
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      border: 1px solid var(--border-color);
+      transform: translateY(-10px) scale(0.95);
+      transform-origin: top right;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #traveler-modal.active .modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    #traveler-modal .modal-header {
+      display: none; /* Hide header in popover mode */
+    }
+
+    #traveler-modal .option-item {
+      padding: 8px 10px;
+      font-size: 13px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 500;
+    }
+
+    #traveler-modal .option-item:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
@@ -1632,7 +1692,7 @@
           <!-- Form Area -->
           <div class="review-form-content">
             <!-- Traveler Type Picker -->
-            <div class="form-section">
+            <div class="form-section traveler-section">
               <label class="section-label">旅客類型</label>
               <div class="picker-trigger" onclick="openTravelerTypeModal()">
                 <span id="selected-traveler-type" class="placeholder">請選擇</span>
