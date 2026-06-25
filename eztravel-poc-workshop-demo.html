@@ -734,6 +734,38 @@
       cursor: pointer;
     }
 
+    .type-dialog {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .type-panel {
+      width: calc(100% - 56px);
+      max-width: 330px;
+      background: #fff;
+      border-radius: 6px;
+      padding: 28px 26px 20px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+    }
+
+    .type-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 28px;
+    }
+
+    .type-option {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      background: #fff;
+      text-align: left;
+      font-size: 19px;
+      color: #333;
+      cursor: pointer;
+      padding: 0;
+    }
+
     .side {
       align-self: center;
       background: #fff;
@@ -839,6 +871,16 @@
             <div class="dialog-action" onclick="closeDialog()">確認</div>
           </div>
         </div>
+        <div class="dialog-mask type-dialog" id="typeDialog" onclick="closeTypeDialog(event)">
+          <div class="type-panel">
+            <div class="type-title">旅客類型</div>
+            <button class="type-option" onclick="selectTravelerType('家庭')">家庭</button>
+            <button class="type-option" onclick="selectTravelerType('夫妻/情侶')">夫妻/情侶</button>
+            <button class="type-option" onclick="selectTravelerType('朋友')">朋友</button>
+            <button class="type-option" onclick="selectTravelerType('單獨旅行')">單獨旅行</button>
+            <button class="type-option" onclick="selectTravelerType('商務')">商務</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -860,6 +902,7 @@
     const state = {
       screen: "member",
       listTab: "todo",
+      travelerType: "",
       ratings: { q1: 0, q2: 0, q3: 0 },
       tags: { q1: [], q2: ["時間掌握不佳"], q3: [] },
       submitted: false
@@ -1051,9 +1094,9 @@
             <div class="trip-meta">大阪城公園、心齋橋、京都散策<br>訂單編號 ORD0018452470</div>
           </div>
         </section>
-        <section class="select-row">
+        <section class="select-row" onclick="openTypeDialog()">
           <span>旅客類型</span>
-          <span class="select-value">請選擇</span>
+          <span class="select-value">${state.travelerType || "請選擇"}</span>
           <span class="arrow">›</span>
         </section>
         <section class="detail-score">
@@ -1150,6 +1193,22 @@
 
     function closeDialog() {
       document.getElementById("dialog").classList.remove("show");
+    }
+
+    function openTypeDialog() {
+      document.getElementById("typeDialog").classList.add("show");
+    }
+
+    function selectTravelerType(type) {
+      state.travelerType = type;
+      document.getElementById("typeDialog").classList.remove("show");
+      render();
+    }
+
+    function closeTypeDialog(event) {
+      if (event.target.id === "typeDialog") {
+        document.getElementById("typeDialog").classList.remove("show");
+      }
     }
 
     document.querySelectorAll(".side button").forEach(button => {
