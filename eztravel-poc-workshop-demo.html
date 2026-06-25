@@ -543,12 +543,29 @@
       align-items: center;
       font-size: 18px;
       font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.select-row {
+      width: 100%;
+      border-left: 0;
+      border-right: 0;
+      text-align: left;
+      font-family: inherit;
+      color: var(--text);
     }
 
     .select-value {
       color: #8a8a8a;
       text-align: right;
       font-weight: 500;
+    }
+
+    .select-row .arrow {
+      color: #b8b8b8;
+      text-align: right;
+      font-size: 28px;
+      font-weight: 400;
     }
 
     .detail-score {
@@ -1090,11 +1107,11 @@
             <div class="trip-meta">大阪城公園、心齋橋、京都散策<br>訂單編號 ORD0018452470</div>
           </div>
         </section>
-        <section class="select-row" onclick="openTypeDialog()">
+        <button type="button" class="select-row" id="travelerTypeButton">
           <span>旅客類型</span>
           <span class="select-value">${state.travelerType || "請選擇"}</span>
           <span class="arrow">›</span>
-        </section>
+        </button>
         <section class="detail-score">
           <div class="section-title">細項評分</div>
           <div class="score-grid">
@@ -1209,6 +1226,12 @@
 
     document.querySelectorAll(".side button").forEach(button => {
       button.addEventListener("click", () => setScreen(button.dataset.screen));
+    });
+
+    document.addEventListener("click", event => {
+      if (event.target.closest("#travelerTypeButton")) {
+        openTypeDialog();
+      }
     });
 
     render();
