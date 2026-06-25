@@ -37,6 +37,39 @@
       padding: 24px;
     }
 
+    .demo-tabs {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: min(520px, calc(100vw - 48px));
+      background: #fff;
+      border: 1px solid #dcebe8;
+      border-radius: 17px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      box-shadow: 0 14px 36px rgba(0, 75, 68, .08);
+    }
+
+    .demo-tab {
+      min-height: 62px;
+      border: 0;
+      border-radius: 13px;
+      background: #fff;
+      color: #40524f;
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0;
+      cursor: pointer;
+    }
+
+    .demo-tab.active {
+      background: #16a69a;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(22, 166, 154, .24);
+    }
+
     .phone-wrap {
       display: flex;
       justify-content: center;
@@ -844,6 +877,15 @@
         padding: 14px;
       }
 
+      .demo-tabs {
+        width: min(390px, 100%);
+      }
+
+      .demo-tab {
+        min-height: 50px;
+        font-size: 15px;
+      }
+
       .phone {
         width: min(390px, calc(100vw - 28px));
         min-width: 0;
@@ -865,6 +907,12 @@
 </head>
 <body>
   <main class="page">
+    <nav class="demo-tabs" aria-label="展示角度切換">
+      <button class="demo-tab active" type="button">旅客端 App</button>
+      <button class="demo-tab" type="button" onclick="setScreen('done')">旅行社後端</button>
+      <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">未來 App 首頁</button>
+    </nav>
+
     <div class="phone-wrap">
       <div class="phone" aria-label="ezTravel App 模擬畫面">
         <div class="status">
