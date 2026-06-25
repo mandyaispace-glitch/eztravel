@@ -38,27 +38,25 @@
     }
 
     .demo-tabs {
-      grid-column: 1 / -1;
-      justify-self: center;
-      width: min(520px, calc(100vw - 48px));
+      width: 100%;
       background: #fff;
       border: 1px solid #dcebe8;
       border-radius: 17px;
-      padding: 8px;
+      padding: 7px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      box-shadow: 0 14px 36px rgba(0, 75, 68, .08);
+      grid-template-columns: 1fr;
+      gap: 7px;
+      box-shadow: 0 12px 26px rgba(0, 75, 68, .07);
     }
 
     .demo-tab {
-      min-height: 62px;
+      min-height: 48px;
       border: 0;
-      border-radius: 13px;
+      border-radius: 11px;
       background: #fff;
       color: #40524f;
       font-family: inherit;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 900;
       letter-spacing: 0;
       cursor: pointer;
@@ -877,10 +875,6 @@
         padding: 14px;
       }
 
-      .demo-tabs {
-        width: min(390px, 100%);
-      }
-
       .demo-tab {
         min-height: 50px;
         font-size: 15px;
@@ -907,12 +901,6 @@
 </head>
 <body>
   <main class="page">
-    <nav class="demo-tabs" aria-label="展示角度切換">
-      <button class="demo-tab active" type="button">旅客端 App</button>
-      <button class="demo-tab" type="button" onclick="setScreen('done')">旅行社後端</button>
-      <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">未來 App 首頁</button>
-    </nav>
-
     <div class="phone-wrap">
       <div class="phone" aria-label="ezTravel App 模擬畫面">
         <div class="status">
@@ -950,6 +938,11 @@
     </div>
 
     <nav class="side" aria-label="畫面切換">
+      <div class="demo-tabs" aria-label="展示角度切換">
+        <button class="demo-tab active" type="button">旅客端 App</button>
+        <button class="demo-tab" type="button" onclick="setScreen('done')">旅行社後端</button>
+        <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">未來 App 首頁</button>
+      </div>
       <button data-screen="member" class="active">我的首頁</button>
       <button data-screen="order">訂單入口</button>
       <button data-screen="list">評鑑清單</button>
