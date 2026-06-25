@@ -29,34 +29,79 @@
 
     .page {
       min-height: 100vh;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px;
       display: grid;
-      grid-template-columns: minmax(420px, 1fr) minmax(420px, 520px);
-      gap: 28px;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: #0b8985;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    h1 {
+      margin: 0;
+      color: #102033;
+      font-size: 28px;
+      line-height: 1.25;
+    }
+
+    .intro {
+      margin: 8px 0 0;
+      max-width: 680px;
+      color: #607382;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .actions {
+      display: grid;
+      justify-items: start;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: auto 152px;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      gap: 18px;
     }
 
     .demo-tabs {
-      width: 100%;
+      width: 520px;
       background: #fff;
       border: 1px solid #dcebe8;
-      border-radius: 17px;
-      padding: 8px;
+      border-radius: 16px;
+      padding: 5px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 5px;
       box-shadow: 0 14px 36px rgba(0, 75, 68, .08);
     }
 
     .demo-tab {
-      min-height: 58px;
+      min-height: 46px;
       border: 0;
-      border-radius: 13px;
+      border-radius: 12px;
       background: #fff;
       color: #40524f;
       font-family: inherit;
-      font-size: 17px;
+      font-size: 14px;
       font-weight: 900;
       letter-spacing: 0;
       cursor: pointer;
@@ -75,12 +120,12 @@
     }
 
     .phone {
-      width: min(390px, calc(100vw - 300px));
-      min-width: 340px;
-      height: min(844px, calc(100vh - 48px));
-      min-height: 650px;
-      border-radius: 32px;
-      border: 12px solid #262626;
+      width: 360px;
+      height: 690px;
+      min-width: 0;
+      min-height: 0;
+      border-radius: 30px;
+      border: 10px solid #262626;
       background: #fff;
       box-shadow: 0 28px 80px rgba(0, 42, 38, .22);
       overflow: hidden;
@@ -817,30 +862,29 @@
     .side {
       align-self: center;
       display: grid;
-      gap: 14px;
-      position: sticky;
-      top: 24px;
-      width: min(520px, 100%);
+      gap: 0;
+      position: static;
+      width: 152px;
     }
 
     .screen-controls {
       background: #fff;
       border: 1px solid #dfe9e6;
       border-radius: 16px;
-      padding: 12px;
+      padding: 6px;
       box-shadow: 0 16px 40px rgba(0, 60, 50, .08);
       display: grid;
-      gap: 8px;
-      width: 220px;
-      justify-self: end;
+      gap: 0;
+      width: 152px;
+      justify-self: stretch;
     }
 
     .screen-controls button,
     .screen-controls a {
-      min-height: 46px;
+      min-height: 52px;
       border: 0;
-      border-radius: 10px;
-      background: #f5f8f7;
+      border-radius: 12px;
+      background: #fff;
       color: #4d5d5a;
       font-size: 14px;
       font-weight: 800;
@@ -861,6 +905,7 @@
       background: #fff;
       border: 1px solid var(--line);
       color: var(--green);
+      margin-top: 8px;
     }
 
     .caption {
@@ -878,88 +923,100 @@
 
     @media (max-width: 760px) {
       .page {
-        grid-template-columns: 1fr;
+        padding: 16px;
         gap: 14px;
-        padding: 14px;
       }
 
-      .demo-tab {
-        min-height: 50px;
-        font-size: 15px;
+      .top {
+        display: grid;
+      }
+
+      .demo-tabs {
+        width: 100%;
       }
 
       .phone {
-        width: min(390px, calc(100vw - 28px));
-        min-width: 0;
-        height: min(820px, calc(100vh - 170px));
+        width: min(360px, 100%);
+        height: min(690px, calc(100vh - 180px));
       }
 
-      .side {
-        position: static;
-        width: min(390px, 100%);
-        justify-self: center;
+      .stage {
+        grid-template-columns: 1fr;
+        place-items: center;
       }
 
       .screen-controls {
-        width: 100%;
-        justify-self: stretch;
+        width: min(360px, 100%);
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
 </head>
 <body>
   <main class="page">
-    <div class="phone-wrap">
-      <div class="phone" aria-label="ezTravel App 模擬畫面">
-        <div class="status">
-          <span>15:34</span>
-          <div class="status-icons">
-            <span>4G+</span>
-            <span>▰▰▰</span>
-            <span>⌁</span>
-            <span class="battery"></span>
-            <span>25</span>
-          </div>
-        </div>
-        <div class="app">
-          <div class="app-header" id="appHeader"></div>
-          <div class="content" id="content"></div>
-          <div class="bottom-nav" id="bottomNav"></div>
-        </div>
-        <div class="dialog-mask" id="dialog">
-          <div class="dialog">
-            <div class="dialog-title">送出成功</div>
-            <div class="dialog-action" onclick="closeDialog()">確認</div>
-          </div>
-        </div>
-        <div class="dialog-mask type-dialog" id="typeDialog" onclick="closeTypeDialog(event)">
-          <div class="type-panel">
-            <div class="type-title">旅客類型</div>
-            <button class="type-option" onclick="selectTravelerType('家庭')">家庭</button>
-            <button class="type-option" onclick="selectTravelerType('夫妻/情侶')">夫妻/情侶</button>
-            <button class="type-option" onclick="selectTravelerType('朋友')">朋友</button>
-            <button class="type-option" onclick="selectTravelerType('單獨旅行')">單獨旅行</button>
-            <button class="type-option" onclick="selectTravelerType('商務')">商務</button>
-          </div>
+    <header class="top">
+      <div>
+        <p class="eyebrow">互動展示原型</p>
+        <h1>團體旅遊評價系統 POC Demo</h1>
+        <p class="intro">以旅客端、旅行社後端與未來 App 首頁三個角度，展示團體旅遊評價資料如何被填寫、追蹤、累積並成為旅客選團依據。</p>
+      </div>
+      <div class="actions">
+        <div class="demo-tabs" aria-label="展示角度切換">
+          <button class="demo-tab active" type="button">旅客端 App</button>
+          <button class="demo-tab" type="button" onclick="setScreen('done')">旅行社後端</button>
+          <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">未來 App 首頁</button>
         </div>
       </div>
-    </div>
+    </header>
 
-    <nav class="side" aria-label="畫面切換">
-      <div class="demo-tabs" aria-label="展示角度切換">
-        <button class="demo-tab active" type="button">旅客端 App</button>
-        <button class="demo-tab" type="button" onclick="setScreen('done')">旅行社後端</button>
-        <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">未來 App 首頁</button>
+    <section class="stage">
+      <div class="phone-wrap">
+        <div class="phone" aria-label="ezTravel App 模擬畫面">
+          <div class="status">
+            <span>15:34</span>
+            <div class="status-icons">
+              <span>4G+</span>
+              <span>▰▰▰</span>
+              <span>⌁</span>
+              <span class="battery"></span>
+              <span>25</span>
+            </div>
+          </div>
+          <div class="app">
+            <div class="app-header" id="appHeader"></div>
+            <div class="content" id="content"></div>
+            <div class="bottom-nav" id="bottomNav"></div>
+          </div>
+          <div class="dialog-mask" id="dialog">
+            <div class="dialog">
+              <div class="dialog-title">送出成功</div>
+              <div class="dialog-action" onclick="closeDialog()">確認</div>
+            </div>
+          </div>
+          <div class="dialog-mask type-dialog" id="typeDialog" onclick="closeTypeDialog(event)">
+            <div class="type-panel">
+              <div class="type-title">旅客類型</div>
+              <button class="type-option" onclick="selectTravelerType('家庭')">家庭</button>
+              <button class="type-option" onclick="selectTravelerType('夫妻/情侶')">夫妻/情侶</button>
+              <button class="type-option" onclick="selectTravelerType('朋友')">朋友</button>
+              <button class="type-option" onclick="selectTravelerType('單獨旅行')">單獨旅行</button>
+              <button class="type-option" onclick="selectTravelerType('商務')">商務</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="screen-controls">
+
+      <nav class="side" aria-label="畫面切換">
+        <div class="screen-controls">
         <button data-screen="member" class="active">我的首頁</button>
         <button data-screen="order">訂單入口</button>
         <button data-screen="list">評鑑清單</button>
         <button data-screen="form">團體評價</button>
         <button data-screen="done">完成狀態</button>
         <a href="./original-poc.html">回主 POC</a>
-      </div>
-    </nav>
+        </div>
+      </nav>
+    </section>
 
     <section class="caption">
       這版依照真實易遊網 App 截圖重做：保留會員中心、訂單完成、評鑑清單與填寫評鑑的介面語言，再把團體旅遊 POC 的 3 題、低分追蹤與送出成功放進同一套 App 脈絡中。
