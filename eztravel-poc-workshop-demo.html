@@ -763,6 +763,7 @@
   <script>
     const state = {
       screen: "member",
+      listTab: "todo",
       ratings: { q1: 4, q2: 3, q3: 0 },
       tags: { q1: [], q2: ["時間掌握不佳"], q3: [] },
       submitted: false
@@ -792,7 +793,7 @@
     const headers = {
       member: { title: "我的", back: false, clear: "" },
       order: { title: "訂單 ORD0018452470", back: true, clear: "" },
-      list: { title: "訂房評鑑", back: true, clear: "" },
+      list: { title: "團體旅遊評鑑", back: true, clear: "" },
       form: { title: "團體旅遊評價", back: true, clear: "清除" },
       done: { title: "評價完成", back: true, clear: "" }
     };
@@ -850,7 +851,7 @@
           <button class="menu-item"><span class="icon">●</span><span>會員資料管理</span><span class="arrow">›</span></button>
           <button class="menu-item"><span class="icon">●</span><span>我的好友</span><span class="arrow">›</span></button>
           <button class="menu-item"><span class="icon">●</span><span>M幣點數</span><span class="arrow">›</span></button>
-          <button class="menu-item" onclick="setScreen('list')"><span class="icon">●</span><span>我的評鑑</span><span class="arrow">›</span></button>
+          <button class="menu-item" onclick="setScreen('list')"><span class="icon">●</span><span>飯店評鑑</span><span class="arrow">›</span></button>
           <button class="menu-item" onclick="setScreen('form')"><span class="icon">●</span><span>團體旅遊評價</span><span class="arrow">›</span></button>
         </section>
       `;
@@ -884,10 +885,28 @@
     }
 
     function renderList() {
+      const completed = state.listTab === "done";
+      if (completed) {
+        return `
+          <div class="tabs">
+            <button class="tab" onclick="setListTab('todo')">未完成評鑑</button>
+            <button class="tab active" onclick="setListTab('done')">已完成評鑑</button>
+          </div>
+          <article class="review-item">
+            <div class="thumb"></div>
+            <div>
+              <div class="review-name">九州熊本溫泉五天四夜</div>
+              <div class="review-meta">熊本城、阿蘇草千里、溫泉旅宿<br>出發 2026-05-20<br>訂單編號 ORD0017642198</div>
+            </div>
+            <div class="score">您的評鑑<b>8分</b></div>
+          </article>
+        `;
+      }
+
       return `
         <div class="tabs">
-          <button class="tab active">未完成評鑑</button>
-          <button class="tab">已完成評鑑</button>
+          <button class="tab active" onclick="setListTab('todo')">未完成評鑑</button>
+          <button class="tab" onclick="setListTab('done')">已完成評鑑</button>
         </div>
         <article class="review-item" onclick="setScreen('form')">
           <div class="thumb"></div>
@@ -895,15 +914,15 @@
             <div class="review-name">日本關西經典 5 日</div>
             <div class="review-meta">大阪城公園、心齋橋、京都散策<br>出發 2026-06-18<br>訂單編號 ORD0018452470</div>
           </div>
-          <div class="score">待填寫<b>3題</b></div>
+          <div class="score"><b>待填寫</b></div>
         </article>
-        <article class="review-item">
+        <article class="review-item" onclick="setScreen('form')">
           <div class="thumb"></div>
           <div>
-            <div class="review-name">JR九州花博中心酒店</div>
-            <div class="review-meta">高級雙床房 Sleeps2<br>入住退房 2023-05-08 至 2023-05-12<br>訂單編號 ORD0018452470</div>
+            <div class="review-name">釜山四日遊</div>
+            <div class="review-meta">海雲台、甘川洞文化村、松島海上纜車<br>出發 2026-07-04<br>訂單編號 ORD0018520931</div>
           </div>
-          <div class="score">您的評鑑<b>9分</b></div>
+          <div class="score"><b>待填寫</b></div>
         </article>
       `;
     }
@@ -1018,6 +1037,11 @@
       } else {
         state.tags[id] = [...tags, tag];
       }
+      render();
+    }
+
+    function setListTab(tab) {
+      state.listTab = tab;
       render();
     }
 
