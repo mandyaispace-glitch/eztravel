@@ -531,6 +531,102 @@
       font-weight: 700;
     }
 
+    .select-row {
+      height: 72px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-top: 10px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: 120px 1fr 24px;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .select-value {
+      color: #8a8a8a;
+      text-align: right;
+      font-weight: 500;
+    }
+
+    .detail-score {
+      background: #fff;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-top: 10px;
+      padding: 18px 14px 22px;
+    }
+
+    .score-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .score-label {
+      color: #666;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .ten-scale {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+    }
+
+    .ten-score {
+      height: 36px;
+      min-width: 0;
+      border: 1px solid #bdbdbd;
+      border-radius: 4px;
+      background: #fff;
+      color: #555;
+      font-size: 17px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .ten-score.filled {
+      background: #e2f7ef;
+      border-color: #e2f7ef;
+      color: #fff;
+    }
+
+    .ten-score.selected {
+      background: #06c878;
+      border-color: #06c878;
+      color: #fff;
+    }
+
+    .comment-box {
+      margin-top: 22px;
+      border: 1px solid #d8d8d8;
+      border-radius: 5px;
+      min-height: 112px;
+      padding: 14px;
+      color: #a7a7a7;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .count {
+      text-align: right;
+      color: #777;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
     .followup {
       margin-top: 12px;
       padding: 12px;
@@ -764,7 +860,7 @@
     const state = {
       screen: "member",
       listTab: "todo",
-      ratings: { q1: 4, q2: 3, q3: 0 },
+      ratings: { q1: 0, q2: 0, q3: 0 },
       tags: { q1: [], q2: ["時間掌握不佳"], q3: [] },
       submitted: false
     };
@@ -773,18 +869,21 @@
       {
         id: "q1",
         label: "Q1",
+        short: "整體",
         text: "你對本次旅程整體體驗滿意嗎？",
         tags: ["行程太趕", "車程太長", "景點普通", "自由時間不足", "購物安排不喜歡", "與期待不符", "其他"]
       },
       {
         id: "q2",
         label: "Q2",
+        short: "導領",
         text: "你對本次領隊 / 導遊的專業度與服務態度滿意嗎？",
         tags: ["說明不清楚", "時間掌握不佳", "態度普通", "問題處理不即時", "缺少提醒", "互動感不足", "其他"]
       },
       {
         id: "q3",
         label: "Q3",
+        short: "推薦",
         text: "你會推薦此團給親友嗎？",
         tags: ["價格不划算", "記憶點不足", "餐食或住宿普通", "服務體驗普通", "不適合親友", "下次會再比較", "其他"]
       }
@@ -794,7 +893,7 @@
       member: { title: "我的", back: false, clear: "" },
       order: { title: "訂單 ORD0018452470", back: true, clear: "" },
       list: { title: "團體旅遊評鑑", back: true, clear: "" },
-      form: { title: "團體旅遊評價", back: true, clear: "清除" },
+      form: { title: "團體旅遊評鑑", back: true, clear: "清除" },
       done: { title: "評價完成", back: true, clear: "" }
     };
 
@@ -927,30 +1026,18 @@
       `;
     }
 
-    function renderQuestion(q) {
+    function renderTenScale(q) {
       const rating = state.ratings[q.id] || 0;
-      const followClass = rating <= 2 ? "low" : "";
-      const shouldShowTags = rating > 0 && rating <= 3;
-      const prompt = rating <= 2
-        ? "請協助我們了解問題，客服團隊將協助追蹤。"
-        : "可以補充哪裡普通或可改善嗎？";
-
       return `
-        <section class="question">
-          <div class="q-title"><span class="q-badge">${q.label}</span><span>${q.text}</span></div>
-          <div class="rating-row">
-            ${[1,2,3,4,5].map(n => `<button class="rating ${rating === n ? "selected" : ""}" onclick="rate('${q.id}', ${n})">${n}</button>`).join("")}
+        <div class="score-row">
+          <div class="score-label">${q.short}</div>
+          <div class="ten-scale">
+            ${[1,2,3,4,5,6,7,8,9,10].map(n => {
+              const cls = rating === n ? "selected" : rating > n ? "filled" : "";
+              return `<button class="ten-score ${cls}" onclick="rate('${q.id}', ${n})">${n}</button>`;
+            }).join("")}
           </div>
-          <div class="scale"><span>不滿意</span><span>非常滿意</span></div>
-          ${shouldShowTags ? `
-            <div class="followup ${followClass}">
-              <div class="follow-title">${prompt}</div>
-              <div class="tags">
-                ${q.tags.map(tag => `<button class="tag ${state.tags[q.id].includes(tag) ? "selected" : ""}" onclick="toggleTag('${q.id}', '${tag}')">${tag}</button>`).join("")}
-              </div>
-            </div>
-          ` : ""}
-        </section>
+        </div>
       `;
     }
 
@@ -964,15 +1051,19 @@
             <div class="trip-meta">大阪城公園、心齋橋、京都散策<br>訂單編號 ORD0018452470</div>
           </div>
         </section>
-        <section class="section">
-          <div class="kv">
-            <span>填答進度</span><strong>${completed} / 3 題</strong>
-            <span>獎勵</span><span>完成後發送 M幣 100 點</span>
-          </div>
+        <section class="select-row">
+          <span>旅客類型</span>
+          <span class="select-value">請選擇</span>
+          <span class="arrow">›</span>
         </section>
-        <div class="form-block">
-          ${questions.map(renderQuestion).join("")}
-        </div>
+        <section class="detail-score">
+          <div class="section-title">細項評分</div>
+          <div class="score-grid">
+            ${questions.map(renderTenScale).join("")}
+          </div>
+          <div class="comment-box">請輸入您的評語（選填）</div>
+          <div class="count">0/1000</div>
+        </section>
         <div class="submit-bar">
           <button class="submit" ${completed < 3 ? "disabled" : ""} onclick="submitForm()">確認送出</button>
         </div>
