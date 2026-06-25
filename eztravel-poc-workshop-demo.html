@@ -83,13 +83,13 @@
     }
 
     .demo-tabs {
-      width: 520px;
+      width: 680px;
       background: #fff;
       border: 1px solid #dcebe8;
       border-radius: 16px;
       padding: 5px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 5px;
       box-shadow: 0 14px 36px rgba(0, 75, 68, .08);
     }
@@ -108,9 +108,9 @@
     }
 
     .demo-tab.active {
-      background: #16a69a;
+      background: #102033;
       color: #fff;
-      box-shadow: 0 8px 16px rgba(22, 166, 154, .24);
+      box-shadow: 0 8px 16px rgba(16, 32, 51, .18);
     }
 
     .phone-wrap {
@@ -897,7 +897,7 @@
     }
 
     .screen-controls button.active {
-      background: var(--green);
+      background: #102033;
       color: #fff;
     }
 
@@ -958,13 +958,14 @@
       <div>
         <p class="eyebrow">互動展示原型</p>
         <h1>團體旅遊評價系統 POC Demo</h1>
-        <p class="intro">以旅客端、旅行社後端與未來 App 首頁三個角度，展示團體旅遊評價資料如何被填寫、追蹤、累積並成為旅客選團依據。</p>
+        <p class="intro">以提案版、旅行社後端與未來 App 首頁三個角度，展示團體旅遊評價資料如何被填寫、追蹤、累積並成為旅客選團依據。</p>
       </div>
       <div class="actions">
         <div class="demo-tabs" aria-label="展示角度切換">
-          <button class="demo-tab active" type="button">旅客端 App</button>
+          <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">提案版</button>
           <button class="demo-tab" type="button" onclick="setScreen('done')">旅行社後端</button>
           <button class="demo-tab" type="button" onclick="location.href='./original-poc.html'">未來 App 首頁</button>
+          <button class="demo-tab active" type="button">第一階段上線版</button>
         </div>
       </div>
     </header>
